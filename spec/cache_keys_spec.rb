@@ -1,4 +1,4 @@
-describe "merb-cache-keys" do
+describe "cache key generator" do
   
   u1 = "/items/list"
   q1 = "key1=val1&key2[a]=val2a&key3[]=val3a&key3[]=val3b"

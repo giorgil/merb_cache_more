@@ -5,7 +5,7 @@ if defined?(Merb::Plugins)
   require "merb_cache_more/cache-fragment"
   require 'merb_cache_more/request.rb'
   require 'merb_cache_more/request_helper.rb'
-  require "digest/md5"
+  require 'digest/md5'
 
   unless 1.respond_to? :minutes
     class Numeric

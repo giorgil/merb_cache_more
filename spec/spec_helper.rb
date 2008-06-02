@@ -1,12 +1,13 @@
 $TESTING=true
 $:.unshift File.join(File.dirname(__FILE__), '..', 'lib')
+
 require "rubygems"
 require "merb-core"
-
-require "merb_cache_more"
-require File.dirname(__FILE__) / "controller"
-
 require "merb-haml"
+require "fileutils"
+require "merb-core/test"
+require "merb_cache_more"
+require File.dirname(__FILE__) / "cache_controller"
 
 def set_database_adapter(adapter)
   config_file = File.dirname(__FILE__) / "config/database.yml"
@@ -71,13 +72,11 @@ else
   exit
 end
 
-require "fileutils"
 FileUtils.mkdir_p(Merb::Plugins.config[:merb_cache][:cache_html_directory])
 FileUtils.mkdir_p(Merb::Plugins.config[:merb_cache][:cache_directory])
 
 Merb.start :environment => "test", :adapter => "runner"
 
-require "merb-core/test"
 Spec::Runner.configure do |config|
   config.include Merb::Test::RequestHelper  
 end

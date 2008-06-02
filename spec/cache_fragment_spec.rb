@@ -2,7 +2,7 @@
 # more specs for fragment caching:
 # cache_get, cache_set, cached?, cache, expire
 
-describe "merb-cache-fragment" do
+describe "cache_fragment" do
 
   it "should render index" do
     c = dispatch_to(CacheController, :index)

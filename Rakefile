@@ -11,7 +11,7 @@ NAME = "merb_cache_more"
 GEM_VERSION = "0.9.4"
 AUTHOR = "Ben Chiu"
 EMAIL = "bchiu@yahoo.com"
-HOMEPAGE = "http://www.merbivore.com"
+HOMEPAGE = "http://github.com/bchiu/merb_cache_more"
 SUMMARY = "Extends merb-cache to use params, work with pagination, auto-cache all actions and use many key formats"
 
 spec = Gem::Specification.new do |s|
@@ -34,30 +34,6 @@ Rake::GemPackageTask.new(spec) do |pkg|
   pkg.gem_spec = spec
 end
 
-namespace :specs do
-  ["file", "memory", "memcache", "sequel", "datamapper", "activerecord"].each do |store|
-    desc "Run spec with the \"#{store}\" cache store"
-    task "#{store}" do
-      cwd = Dir.getwd
-      Dir.chdir(File.dirname(__FILE__) + "/spec")
-      ENV["STORE"] = store
-      system("spec --format specdoc --colour merb-cache_spec.rb")
-      Dir.chdir(cwd)
-    end
-  end
-end
-
-namespace :doc do
-  Rake::RDocTask.new do |rdoc|
-    files = ["README", "LICENSE", "lib/**/*.rb"]
-    rdoc.rdoc_files.add(files)
-    rdoc.main = "README"
-    rdoc.title = "merb_cache_more docs"
-    rdoc.rdoc_dir = "doc/rdoc"
-    rdoc.options << "--line-numbers" << "--inline-source"
-  end
-end
-
 task :install => [:package] do
   sh %{#{sudo} #{gemx} install pkg/#{NAME}-#{GEM_VERSION} --local --no-update-sources}
 end
@@ -74,10 +50,32 @@ task :make_spec do
 end
 
 namespace :jruby do
-
   desc "Run :package and install the resulting .gem with jruby"
   task :install => :package do
     sh %{#{sudo} jruby -S gem install #{install_home} pkg/#{NAME}-#{GEM_VERSION}.gem --local --no-rdoc --no-ri}
   end
+end
 
+namespace :specs do
+  ["file", "memory", "memcache", "sequel", "datamapper", "activerecord"].each do |store|
+    desc "Run spec with the \"#{store}\" cache store"
+    task "#{store}" do
+      cwd = Dir.getwd
+      Dir.chdir(File.dirname(__FILE__) + "/spec")
+      ENV["STORE"] = store
+      system("spec --format specdoc --colour merb_cache_more_spec.rb")
+      Dir.chdir(cwd)
+    end
+  end
+end
+
+namespace :doc do
+  Rake::RDocTask.new do |rdoc|
+    files = ["README", "LICENSE", "lib/**/*.rb"]
+    rdoc.rdoc_files.add(files)
+    rdoc.main = "README"
+    rdoc.title = "merb_cache_more docs"
+    rdoc.rdoc_dir = "doc/rdoc"
+    rdoc.options << "--line-numbers" << "--inline-source"
+  end
 end

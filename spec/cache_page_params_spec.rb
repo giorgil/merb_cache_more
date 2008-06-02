@@ -1,4 +1,4 @@
-describe "merb-cache-page-params" do
+describe "cache_page with params" do
   
   qs = "p1=abc&p2=456&p3=ghi"
 

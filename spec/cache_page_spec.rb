@@ -1,4 +1,4 @@
-describe "merb-cache-page" do
+describe "cache_page" do
 
   it "should cache page (action5)" do
     c = get("/cache_controller/action5")
