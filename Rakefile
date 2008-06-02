@@ -1,7 +1,9 @@
 require 'rubygems'
-require "rake/rdoctask"
+require 'rubygems/specification'
+require 'rake/rdoctask'
 require 'rake/gempackagetask'
-require "spec/rake/spectask"
+require 'spec/rake/spectask'
+require 'date'
 require 'merb_rake_helper'
 
 PLUGIN = "merb_cache_more"
