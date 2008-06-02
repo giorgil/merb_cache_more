@@ -1,0 +1,204 @@
+= merb_cache_more
+
+  Extends merb-cache to use params, work with pagination, auto-cache all actions and use many key formats
+  
+  This plugin is a fork of merb-cache written by Alex Boussinet. Much of the 
+  cache-store stuff is unchanged (I only added it so people can run the tests
+  and use this plugin without any dependencies on merb-cache). 
+  
+  Currently supported methods:
+  
+  - page caching:
+  - action caching
+  - fragment caching
+  - object caching
+  
+  Implemented cache stores:
+  
+  - memory
+  - memcache
+  - file
+  - database (sequel, datamapper, activerecord)
+
+== Installation
+
+  git clone git://github.com/bchiu/merb_cache_more.git
+  cd merb_cache_more
+  rake install
+  remove: dependency 'merb-cache' from init.rb
+  add: dependency 'merb_cache_more' to init.rb
+
+== Quick intro
+  With fragment caching, you can mix dynamic and static content.
+
+  With action caching, the whole template is cached
+  but the before filters are still processed.
+
+  With page caching, the whole template is put in html files in a special
+  directory in order to be handled directly without triggering Merb.
+
+== Quick API
+
+=== Merb::Controller class methods
+  cache_action(action, expiration)
+  cache_action(action, expiration, options)
+  cache_actions(action, [action, expiration], ...)
+  cache_actions(action, [action, expiration], [action, expiration, options], ...)
+  cache_page(action, expiration)
+  cache_page(action, expiration, options)
+  cache_pages(action, [action, expiration], ...)
+  cache_pages(action, [action, expiration], [action, expiration, options], ...)
+
+=== Merb::Controller instance methods
+  expire_page(key)
+  cached_page?(key)
+  expire_all_pages()
+
+  expire_action(key)
+  cached_action?(key)
+
+  cached?(key)
+  cache_get(key)
+  cache_set(key, data, expiration)
+  expire(key)
+  expire_all()
+
+=== Inside your template
+  cache(key, expiration) do ... end
+
+  # expiration is given in minutes
+
+  # key can be a string or a hash
+  # possible keys when it's a hash:
+  # :key (full key)
+  # :params (array of params to be added to the key)
+  # :action, :controller
+  # :match (true or partial key)
+
+  # Don't forget to look at the specs !!
+
+== Specs
+  $ rake specs:<cache_store>
+  example:
+  $ rake specs:memory
+  $ rake specs:file
+  or just:
+  $ cd spec
+  $ STORE=<cache_store> spec merb-cache_spec.rb
+  # cache_store can be:
+  #   memory, memcache, file, sequel, datamapper, activerecord
+
+== Sample configuration
+
+  Merb::Plugins.config[:merb_cache] = {
+    :cache_html_directory => Merb.dir_for(:public) / "cache",
+
+    #:store => "database",
+    #:table_name => "merb_cache",
+
+    #:disable => "development", # disable caching for development
+    #:disable => true, # disable caching for all environments
+
+    :store => "file",
+    :cache_directory => Merb.root_path("tmp/cache"),
+
+    #:store => "memcache",
+    #:host => "127.0.0.1:11211",
+    #:namespace => "merb_cache",
+    #:no_tracking => "false",
+
+    #:store => "memory",
+    # store could be: file, memcache, memory, database, dummy, ...
+
+    # can be nil|:snake|:tree|:hash|:query or a custom string
+    # such as ":paramname1/:paramname2_and_:paramname3"
+    #:cache_key_format => nil,
+
+    # expiration time in minutes
+    #:cache_action_ttl => 10,
+    #:cache_page_ttl => 10
+  }
+
+
+== Quick Example
+
+==== controller part
+  class Users < Merb::Controller
+    cache_page :action_name
+    # this will cache the action in public/cache/something.html
+    # this cache entry will never expire (no expiration provided)
+    # for permanent caching you could set your lighty/nginx so as to handle
+    # the .html file directly
+    # for multiple page caching:
+    # cache_pages :action_name, [:another_action, 5], :some_action
+
+    cache_action :another_action, 10
+    # this will cache the action using the cache store
+    # this cache entry will expire in 10 minutes
+    # for multiple action caching:
+    # cache_actions :action_name, [:another_action, 5], :some_action
+
+    cache_action :action_with_config
+    # this will cache the action using the config settings:
+    # :cache_action_ttl => 10
+    # :cache_key_format => nil|:snake|:tree|:query|:hash or custom
+
+    cache_action :action_with_params, 10, :format => :snake, :params => [:id, :name]
+    # config settings may be overriden per action
+    # this will cache the action using a snake case key
+    # key will only include only the params :id and :name
+    # this cache entry will expire in 10 minutes
+
+    def list
+      unless @users = cache_get("active_users")
+        @users = User.all(:active => true)
+        cache_set("active_users", @users)
+        # object caching can be used to avoid pulling huge amounts of data
+        # from the database.
+        # you could have calle cache_set with an expiration time as well:
+        # cache_set("active_users", @users, 10)
+      end
+      render
+    end
+
+    def some_action_that_invalidates_cache
+      expire_page(:action_name)
+      expire_action(:another_action)
+      render
+    end
+
+    def delete
+      expire("active_users")
+      render
+    end
+
+    def archives
+      @archives = User.archives unless cached?("users_archives")
+      render
+    end
+
+    def index
+      render
+    end
+
+    cache_actions :all, 10, :exclude => [:list]
+    # this will cache all actions in the current controller
+    # except for the :list action
+    # cache entries will expire in 10 minutes
+    # note: this line must appear at the end of the class declaration
+  end
+
+
+====views/users/index.html.erb
+  # this entry will expire in 10 minutes
+  <%- cache "users_index", 10 do %>
+   <div>some big template</div>
+  <% end -%>
+
+====views/users/archive.html.erb
+  <%- cache "users_archives" do %>
+   <div>some big template</div>
+  <% end -%>
+
+== Credits
+  This plugin is a fork of merb-cache written by Alex Boussinet. 

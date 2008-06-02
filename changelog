@@ -1,0 +1,65 @@
+2008-05-27 Ben Chiu bchiu@yahoo.com
+
+= 0.9.4 merb_cache_more, released 2008-05-27:
+
+= Changes in behavior from merb-cache:
+
+== Support query string params
+  * generate unique keys when params are present
+  * retain existing behavior when they are not
+  * preserve order of query params
+  * patch merb-core request methods query_parse and params_to_query_string to 
+    allow use of Dictionary (ie. preserve order)
+  * allow :params => false to disable inclusion
+  * support out-of-the-box compatibility with merb_paginate
+  * change default key format from tree to snake pairs (tree can be cpu 
+    intensive and expose filesystem problems on deep nested keys)
+  * added dependency 'digest/md5'
+
+== DRY out action/page cache methods
+  * unify use of key_for instead of request.path
+
+== Sanitize_cache_key method
+  * remove illegal posix/win32 filesystem chars
+  * designed to be overridden by user to help match urls on nginx/apache
+
+== Added global config settings
+  * :cache_action_ttl - action cache expiry time
+  * :cache_page_ttl - page cache expiry time
+  * :cache_key_format - cache key style/format
+
+== Added options to controller caching
+  * :format - key format (overrides global config)
+  * :params - include only these params
+
+== Fix multiple cache_pages, cache_actions
+  * allow combinations of arrays and symbols
+
+== Provide :all option for action/page caching
+  * makes all actions in controller cacheable
+  * use :exclude option to exclude actions
+  * statment must appear at end of class declaration
+
+== Support various key formats
+  * nil - default snake case using param key-pairs
+  * :snake - snake case using param values
+  * :hash - MD5 hashed key
+  * :query - escaped querystring
+  * :tree - folder tree (limited to 10 levels)
+  * custom - ":paramname1/:paramname2_and_:paramname3" where param names are 
+    substituted by their values
+
+== Add rspecs tests with params
+  * patch merb-core test request helper to allow querystring to be passed in 
+    without being overwritten by fake dispatch
+  * remove :id and :format params from query string (they would not be there 
+    unless specifically called like "?id=1&format=html")
+  * key generator tests for simple/complex urls
+  * add controller actions with params
+  * page/action cache and expiration tests with params
+  * modified some existing tests to use new default snake case key format
+    
+== To do:
+  * make multiple cache :all work whether or not statement comes before or 
+    after methods in controller class declaration
+  * polish up comments/examples

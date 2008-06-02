@@ -1,0 +1,14 @@
+---
+:development: &defaults
+  :adapter: sqlite3
+  :database: tmp/merb_cache_more.sqlite3
+  :log_stream: log/sql.log
+  :log_level: 0
+
+:test:
+  <<: *defaults
+  :database: tmp/merb_cache_more.sqlite3
+
+:production:
+  <<: *defaults
+  :database: tmp/merb_cache_more.sqlite3
