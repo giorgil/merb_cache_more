@@ -3,6 +3,7 @@ require 'rubygems/specification'
 require 'rake/rdoctask'
 require 'rake/gempackagetask'
 require 'spec/rake/spectask'
+require 'merb-core/test/tasks/spectasks'
 require 'date'
 require 'merb_rake_helper'
 
@@ -38,8 +39,13 @@ task :install => [:package] do
   sh %{#{sudo} #{gemx} install pkg/#{NAME}-#{GEM_VERSION} --local --no-update-sources}
 end
 
+desc "install frozen (source must be located somewhere inside main frozen gems folder)"
 task :install_frozen => [:package] do
-  sh %{#{sudo} #{gemx} install pkg/#{NAME}-#{GEM_VERSION} -i ../../ --local --no-update-sources}
+  if !path = gems_path
+    puts "source must be located somewhere inside main frozen gems folder"
+  else
+    sh %{#{sudo} #{gemx} install pkg/#{NAME}-#{GEM_VERSION} -i #{path} --local --no-update-sources}
+  end
 end
 
 desc "create a gemspec file"

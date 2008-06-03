@@ -1,4 +1,4 @@
-require "spec_helper"
+require File.dirname(__FILE__) + "/spec_helper"
 
 Merb::Router.prepare do |r|
   r.default_routes
@@ -10,9 +10,9 @@ CACHE.expire_all
 
 puts "Using #{CACHE._cache.store.cache_store_type.inspect} store"
 
-require "cache_keys_spec"
-require "cache_action_spec"
-require "cache_action_params_spec"
-require "cache_page_spec"
-require "cache_page_params_spec"
-require "cache_fragment_spec"
+require File.dirname(__FILE__) + "/cache_keys_spec"
+require File.dirname(__FILE__) + "/cache_action_spec"
+require File.dirname(__FILE__) + "/cache_action_params_spec"
+require File.dirname(__FILE__) + "/cache_page_spec"
+require File.dirname(__FILE__) + "/cache_page_params_spec"
+require File.dirname(__FILE__) + "/cache_fragment_spec"

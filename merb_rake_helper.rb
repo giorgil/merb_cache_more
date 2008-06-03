@@ -13,3 +13,12 @@ def rakex
   win32 = (PLATFORM =~ /win32/) rescue nil
   win32 ? 'rake.bat' : 'rake'
 end
+
+def gems_path
+  d, cwd = nil, Dir.pwd
+  3.times do
+    Dir.chdir('..')
+    d = Dir.pwd and break if Dir.pwd =~ /\/gems$/i
+  end
+  Dir.chdir(cwd) and d
+end
